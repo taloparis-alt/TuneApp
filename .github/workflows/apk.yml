@@ -23,13 +23,22 @@ jobs:
           cache: npm
 
       - name: JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
 
-      - name: SDK de Android
-        uses: android-actions/setup-android@v3
+      # El runner de Ubuntu ya trae el SDK de Android instalado, así que no hace
+      # falta bajarlo. Este paso sólo confirma dónde está y deja constancia en el
+      # log de con qué versiones se compiló.
+      - name: Diagnóstico del entorno
+        run: |
+          echo "node    $(node --version)"
+          echo "npm     $(npm --version)"
+          echo "java    $(java -version 2>&1 | head -1)"
+          echo "ANDROID_HOME     = ${ANDROID_HOME:-(vacío)}"
+          echo "ANDROID_SDK_ROOT = ${ANDROID_SDK_ROOT:-(vacío)}"
+          ls "${ANDROID_HOME:-/usr/local/lib/android/sdk}" || echo "no se encontró el SDK"
 
       - name: Dependencias
         run: npm ci
@@ -38,10 +47,22 @@ jobs:
         run: npx cap sync android
 
       - name: Compilar
+        working-directory: android
         run: |
-          chmod +x android/gradlew
-          cd android
-          ./gradlew assembleDebug --no-daemon
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace
+
+      # Si la compilación falla, esto deja los informes de Gradle a mano para
+      # poder ver el error sin tener que leer todo el log.
+      - name: Informes de error
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: informes-de-error
+          path: |
+            android/app/build/reports/
+            android/build/reports/
+          if-no-files-found: ignore
 
       - name: Publicar el APK
         uses: actions/upload-artifact@v4
