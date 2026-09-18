@@ -1,0 +1,51 @@
+# Compila el APK en la nube. No hace falta tener Java ni Android Studio en la máquina.
+# Se dispara solo en cada push a main, o a mano desde la pestaña Actions de GitHub.
+# El APK queda para descargar como "artifact" al final de la corrida.
+
+name: APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: SDK de Android
+        uses: android-actions/setup-android@v3
+
+      - name: Dependencias
+        run: npm ci
+
+      - name: Copiar la app web al proyecto nativo
+        run: npx cap sync android
+
+      - name: Compilar
+        run: |
+          chmod +x android/gradlew
+          cd android
+          ./gradlew assembleDebug --no-daemon
+
+      - name: Publicar el APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: afinador-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error

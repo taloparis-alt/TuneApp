@@ -1,0 +1,15 @@
+node_modules/
+.DS_Store
+*.log
+
+# Salidas de compilación de Android
+android/build/
+android/app/build/
+android/.gradle/
+android/local.properties
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
+android/app/src/main/assets/capacitor.plugins.json
+
+# Material de referencia, no forma parte de la app
+ref/

@@ -1,0 +1,11 @@
+{
+  "appId": "ar.afinador.app",
+  "appName": "Afinador",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}
