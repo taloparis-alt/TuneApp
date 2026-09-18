@@ -1,7 +1,7 @@
 // manual.js — afinación manual libre: se elige la nota y se ve la desviación.
 
 import { Gauge } from './gauge.js';
-import { midiToFreq, noteInfo, cents as centsBetween, nearestNote, NOTES_ES, NOTES_EN } from './notes.js';
+import { midiToFreq, noteInfo, cents as centsBetween, nearestNote, noteNames, isAltered } from './notes.js';
 import { audio } from './audio.js';
 import { settings } from './store.js';
 
@@ -90,7 +90,7 @@ export class ManualScreen {
     root.querySelector('#mOctUp').addEventListener('click', () => this.shiftOctave(1));
 
     settings.onChange((k) => {
-      if (k === 'notation' || k === 'a4') this.renderPicker();
+      if (k === 'notation' || k === 'a4' || k === 'accidentals') this.renderPicker();
       if (k === 'tolerance') this.gauge.setTolerance(settings.get('tolerance'));
     });
 
@@ -123,18 +123,18 @@ export class ManualScreen {
   }
 
   renderPicker() {
-    const names = settings.get('notation') === 'en' ? NOTES_EN : NOTES_ES;
+    const names = noteNames(settings.get('notation'), settings.get('accidentals'));
     const marcada = this.chromatic ? this.detectedPc : this.pitchClass;
     this.grid.innerHTML = names
       .map(
         (n, i) =>
-          `<button class="note-btn${i === marcada ? ' is-on' : ''}${n.includes('#') ? ' is-sharp' : ''}" data-pc="${i}"${this.chromatic ? ' tabindex="-1" aria-hidden="true"' : ''}>${n}</button>`
+          `<button class="note-btn${i === marcada ? ' is-on' : ''}${isAltered(n) ? ' is-sharp' : ''}" data-pc="${i}"${this.chromatic ? ' tabindex="-1" aria-hidden="true"' : ''}>${n}</button>`
       )
       .join('');
     this.octVal.textContent = String(this.octave);
     if (!this.chromatic) {
       const a4 = settings.get('a4');
-      const info = noteInfo(this.midi, settings.get('notation'));
+      const info = noteInfo(this.midi, settings.get('notation'), settings.get('accidentals'));
       this.elNote.textContent = `${info.name}${info.octave}`;
       this.elTarget.textContent = `objetivo ${midiToFreq(this.midi, a4).toFixed(2)} Hz`;
     }
@@ -180,7 +180,7 @@ export class ManualScreen {
       cents = centsBetween(freq, target);
     }
 
-    const info = noteInfo(midi, notation);
+    const info = noteInfo(midi, notation, settings.get('accidentals'));
     if (this.chromatic) this.markDetected(((midi % 12) + 12) % 12);
     this.elNote.textContent = `${info.name}${info.octave}`;
     this.elHz.textContent = `${freq.toFixed(2)} Hz`;

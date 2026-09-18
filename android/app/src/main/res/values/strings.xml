@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Afinador</string>
-    <string name="title_activity_main">Afinador</string>
+    <string name="app_name">TuneApp</string>
+    <string name="title_activity_main">TuneApp</string>
     <string name="package_name">ar.afinador.app</string>
     <string name="custom_url_scheme">ar.afinador.app</string>
 </resources>

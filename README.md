@@ -1,4 +1,4 @@
-# Afinador — guitarra, ukelele y charango
+# TuneApp — guitarra, ukelele y charango
 
 App de celular para afinar por micrófono, con metrónomo y frecuencia de referencia
 ajustable. Está escrita como app web (HTML/CSS/JS, sin frameworks ni compilación) y se
@@ -11,7 +11,7 @@ empaqueta como **APK de Android con Capacitor**, sin reescribir nada.
 | **Afinador** | Elegís instrumento y ves el clavijero con la nota de cada clavija. Tocás una cuerda al aire y detecta sola cuál es, marca la desviación en cents y suena una confirmación cuando queda afinada. Tocando una clavija se fija esa cuerda y sólo mide contra ella. |
 | **Manual** | *Cromático*: te dice qué nota estás tocando y cuánto te desviás, marcándola en la grilla. *Nota fija*: elegís nota y octava y medís contra esa. |
 | **Metrónomo** | 30–300 BPM, compás de 1 a 12 tiempos, acento en el 1, tap tempo, indicador visual y vibración. |
-| **Ajustes** | Tema (Noche, Madera, Día, Grafito), frecuencia de referencia La4 de 415 a 466 Hz con paso de 0,1 — arranca en 440,0 y se puede volver ahí de un toque —, margen de afinado (±3 / ±5 / ±10 cents), nombres Do-Re-Mi o C-D-E, sonido y vibración. |
+| **Ajustes** | Tema (Noche, Madera, Día, Grafito), frecuencia de referencia La4 de 415 a 466 Hz con paso de 0,1 — arranca en 440,0 y se puede volver ahí de un toque —, margen de afinado (±3 / ±5 / ±10 cents), cifrado (Do-Re-Mi o C-D-E, con sostenidos o bemoles), sonido y vibración. |
 
 ### Afinaciones
 
@@ -27,7 +27,7 @@ Todas las frecuencias se recalculan solas al cambiar la referencia.
 python devserver.py
 ```
 
-Y abrí `http://localhost:5181`. El micrófono sólo funciona en `localhost` o por HTTPS,
+Y abrí `http://localhost:5182`. El micrófono sólo funciona en `localhost` o por HTTPS,
 por eso el servidor apunta ahí.
 
 ## Generar el APK
@@ -45,9 +45,9 @@ workflow*— compila y deja el APK para descargar como artifact.
 ```bash
 git init
 git add .
-git commit -m "Afinador"
+git commit -m "TuneApp"
 git branch -M main
-git remote add origin https://github.com/TU-USUARIO/afinador.git
+git remote add origin https://github.com/TU-USUARIO/TuneApp.git
 git push -u origin main
 ```
 

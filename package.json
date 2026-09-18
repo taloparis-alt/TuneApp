@@ -1,7 +1,7 @@
 {
-  "name": "afinador",
+  "name": "tuneapp",
   "version": "1.0.0",
-  "description": "Afinador de guitarra, ukelele y charango con metrónomo",
+  "description": "TuneApp — afinador de guitarra, ukelele y charango con metrónomo",
   "private": true,
   "scripts": {
     "dev": "python devserver.py",

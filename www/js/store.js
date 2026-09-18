@@ -7,6 +7,7 @@ const DEFAULTS = {
   theme: 'noche',      // noche | madera | dia | grafito
   instrument: 'guitarra',
   notation: 'es',      // 'es' = Do Re Mi · 'en' = C D E
+  accidentals: 'sharp', // 'sharp' = Do♯ · 'flat' = Re♭
   tolerance: 5,        // cents que se consideran "afinado"
   sound: true,         // pitido al quedar afinada
   vibrate: true,

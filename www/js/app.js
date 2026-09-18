@@ -3,6 +3,7 @@
 import { audio } from './audio.js';
 import { PitchDetector, Smoother } from './pitch.js';
 import { settings } from './store.js';
+import { noteNames } from './notes.js';
 import { TunerScreen } from './tuner.js';
 import { ManualScreen } from './manual.js';
 import { MetronomeScreen } from './metronome.js';
@@ -118,7 +119,7 @@ function buildSettings(root) {
       <p class="muted sm-text">Cents de tolerancia para dar la cuerda por afinada.</p>
     </div>
 
-    <h2 class="sec-title">Preferencias</h2>
+    <h2 class="sec-title">Cifrado</h2>
     <div class="card">
       <div class="row-between">
         <span>Nombres de notas</span>
@@ -127,6 +128,18 @@ function buildSettings(root) {
           <button class="seg-btn" data-not="en">C D E</button>
         </div>
       </div>
+      <div class="row-between">
+        <span>Alteraciones</span>
+        <div class="seg sm" id="sAccidentals">
+          <button class="seg-btn" data-acc="sharp">Sostenidos ♯</button>
+          <button class="seg-btn" data-acc="flat">Bemoles ♭</button>
+        </div>
+      </div>
+      <p class="muted sm-text" id="sCifradoEj">Ejemplo: Do♯ · Re♯ · Fa♯ · Sol♯ · La♯</p>
+    </div>
+
+    <h2 class="sec-title">Preferencias</h2>
+    <div class="card">
       <label class="switch row-between">
         <span>Sonido al quedar afinada</span>
         <input type="checkbox" id="sSound">
@@ -186,6 +199,10 @@ function buildSettings(root) {
     const b = e.target.closest('[data-not]');
     if (b) settings.set('notation', b.dataset.not);
   });
+  root.querySelector('#sAccidentals').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-acc]');
+    if (b) settings.set('accidentals', b.dataset.acc);
+  });
 
   const chkSound = root.querySelector('#sSound');
   const chkVib = root.querySelector('#sVibrate');
@@ -205,6 +222,13 @@ function buildSettings(root) {
     root.querySelectorAll('[data-theme]').forEach((b) => {
       b.classList.toggle('is-on', b.dataset.theme === settings.get('theme'));
     });
+    root.querySelectorAll('[data-acc]').forEach((b) => {
+      b.classList.toggle('is-on', b.dataset.acc === settings.get('accidentals'));
+    });
+    // El ejemplo muestra las cinco alteradas con el cifrado elegido.
+    const nombres = noteNames(settings.get('notation'), settings.get('accidentals'));
+    root.querySelector('#sCifradoEj').textContent =
+      'Ejemplo: ' + [1, 3, 6, 8, 10].map((i) => nombres[i]).join(' · ');
   };
 
   settings.onChange(syncAll);

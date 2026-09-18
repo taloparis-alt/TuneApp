@@ -50,10 +50,10 @@ function tunerHardware(inst, peg, y) {
   );
 }
 
-function pegGroup(inst, peg, a4, notation) {
+function pegGroup(inst, peg, a4, notation, accidentals) {
   const y = inst.rows[peg.row];
   const x = inst.postX[peg.side];
-  const info = noteInfo(peg.midi, notation);
+  const info = noteInfo(peg.midi, notation, accidentals);
   const freq = midiToFreq(peg.midi, a4);
   const nameSize = info.name.length >= 3 ? 9 : 12;
   const labelY = inst.rows[peg.row] - 16;
@@ -98,8 +98,9 @@ function strings(inst) {
  * @param {object} inst   definición del instrumento
  * @param {number} a4     frecuencia de referencia
  * @param {string} notation 'es' | 'en'
+ * @param {string} accidentals 'sharp' | 'flat'
  */
-export function buildHeadstock(inst, a4, notation) {
+export function buildHeadstock(inst, a4, notation, accidentals) {
   const uid = inst.id;
   const { x0, x1 } = inst.nut;
 

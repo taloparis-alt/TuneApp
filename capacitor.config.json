@@ -1,6 +1,6 @@
 {
   "appId": "ar.afinador.app",
-  "appName": "Afinador",
+  "appName": "TuneApp",
   "webDir": "www",
   "android": {
     "allowMixedContent": false

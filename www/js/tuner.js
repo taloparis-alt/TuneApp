@@ -80,7 +80,7 @@ export class TunerScreen {
     });
 
     settings.onChange((k) => {
-      if (k === 'a4' || k === 'notation') this.render();
+      if (k === 'a4' || k === 'notation' || k === 'accidentals') this.render();
       if (k === 'tolerance') this.gauge.setTolerance(settings.get('tolerance'));
     });
 
@@ -104,7 +104,8 @@ export class TunerScreen {
   render() {
     const a4 = settings.get('a4');
     const notation = settings.get('notation');
-    this.stage.innerHTML = buildHeadstock(this.inst, a4, notation);
+    const accidentals = settings.get('accidentals');
+    this.stage.innerHTML = buildHeadstock(this.inst, a4, notation, accidentals);
     this.root.querySelectorAll('[data-inst]').forEach((b) => {
       const on = b.dataset.inst === this.instId;
       b.classList.toggle('is-on', on);
@@ -131,7 +132,7 @@ export class TunerScreen {
     });
     if (this.locked) {
       const peg = this.inst.pegs.find((p) => p.id === this.locked);
-      const info = noteInfo(peg.midi, notation);
+      const info = noteInfo(peg.midi, notation, settings.get('accidentals'));
       this.elMode.textContent = 'Clavija fija';
       this.elString.textContent = peg.course;
       this.elTarget.textContent = `objetivo ${midiToFreq(peg.midi, a4).toFixed(2)} Hz`;
@@ -200,7 +201,7 @@ export class TunerScreen {
 
     const targetFreq = midiToFreq(target.midi, a4);
     const cents = centsBetween(freq, targetFreq);
-    const info = noteInfo(target.midi, notation);
+    const info = noteInfo(target.midi, notation, settings.get('accidentals'));
 
     // En el charango la 1ª y la 3ª son el mismo Mi: se marcan las dos.
     const sameNote = this.inst.pegs.filter((p) => p.midi === target.midi);
