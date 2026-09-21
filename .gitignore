@@ -13,3 +13,7 @@ android/app/src/main/assets/capacitor.plugins.json
 
 # Material de referencia, no forma parte de la app
 ref/
+
+# APK/AAB descargados de Actions
+TuneApp/
+*.zip

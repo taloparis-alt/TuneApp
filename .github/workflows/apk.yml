@@ -1,6 +1,14 @@
-# Compila el APK en la nube. No hace falta tener Java ni Android Studio en la máquina.
-# Se dispara solo en cada push a main, o a mano desde la pestaña Actions de GitHub.
-# El APK queda para descargar como "artifact" al final de la corrida.
+# Compila TuneApp en la nube. No hace falta tener Java ni Android Studio en la máquina.
+#
+# Siempre produce el APK de prueba (artifact "tuneapp-apk"), para instalar a mano.
+#
+# Si además están cargados los secrets de firma, produce el AAB firmado que pide
+# Play Store (artifact "tuneapp-aab"). Secrets necesarios:
+#   KEYSTORE_BASE64    el archivo .keystore codificado en base64
+#   KEYSTORE_PASSWORD  contraseña del almacén
+#   KEY_ALIAS          alias de la clave
+#   KEY_PASSWORD       contraseña de la clave
+# Sin esos secrets el paso se saltea solo y el workflow igual termina bien.
 
 name: APK
 
@@ -13,6 +21,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    # Se copia a env porque el contexto `secrets` no se puede leer desde un `if:` de paso.
+    env:
+      KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -22,23 +34,23 @@ jobs:
           node-version: '20'
           cache: npm
 
-      - name: JDK 17
+      - name: JDK 21
         uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
 
       # El runner de Ubuntu ya trae el SDK de Android instalado, así que no hace
-      # falta bajarlo. Este paso sólo confirma dónde está y deja constancia en el
-      # log de con qué versiones se compiló.
+      # falta bajarlo. Este paso sólo deja constancia de con qué se compiló.
       - name: Diagnóstico del entorno
         run: |
           echo "node    $(node --version)"
           echo "npm     $(npm --version)"
           echo "java    $(java -version 2>&1 | head -1)"
-          echo "ANDROID_HOME     = ${ANDROID_HOME:-(vacío)}"
-          echo "ANDROID_SDK_ROOT = ${ANDROID_SDK_ROOT:-(vacío)}"
-          ls "${ANDROID_HOME:-/usr/local/lib/android/sdk}" || echo "no se encontró el SDK"
+          echo "ANDROID_HOME = ${ANDROID_HOME:-(vacío)}"
+          echo "firma de release: ${KEYSTORE_BASE64:+configurada}${KEYSTORE_BASE64:-sin configurar}"
+          echo "plataformas del SDK instaladas:"
+          ls "${ANDROID_HOME}/platforms" 2>/dev/null || echo "  (ninguna; Gradle las bajará solo)"
 
       - name: Dependencias
         run: npm ci
@@ -46,14 +58,28 @@ jobs:
       - name: Copiar la app web al proyecto nativo
         run: npx cap sync android
 
-      - name: Compilar
+      - name: Compilar APK de prueba
         working-directory: android
         run: |
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon --stacktrace
 
-      # Si la compilación falla, esto deja los informes de Gradle a mano para
-      # poder ver el error sin tener que leer todo el log.
+      - name: Preparar la clave de firma
+        if: env.KEYSTORE_BASE64 != ''
+        run: echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/upload.keystore"
+
+      - name: Compilar AAB firmado para Play Store
+        if: env.KEYSTORE_BASE64 != ''
+        working-directory: android
+        env:
+          KEYSTORE_FILE: ${{ runner.temp }}/upload.keystore
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: ./gradlew bundleRelease --no-daemon --stacktrace
+
+      # Si algo falla, los informes de Gradle quedan a mano para ver el error
+      # sin tener que leer todo el log.
       - name: Informes de error
         if: failure()
         uses: actions/upload-artifact@v4
@@ -64,9 +90,17 @@ jobs:
             android/build/reports/
           if-no-files-found: ignore
 
-      - name: Publicar el APK
+      - name: Publicar el APK de prueba
         uses: actions/upload-artifact@v4
         with:
-          name: afinador-apk
+          name: tuneapp-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+
+      - name: Publicar el AAB para Play Store
+        if: env.KEYSTORE_BASE64 != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: tuneapp-aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
           if-no-files-found: error
