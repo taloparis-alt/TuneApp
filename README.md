@@ -106,6 +106,19 @@ Para regenerar la clave hace falta un JDK:
 keytool -genkeypair -v -keystore firma/upload.keystore -storetype PKCS12   -alias tuneapp -keyalg RSA -keysize 2048 -validity 10000
 ```
 
+**Material de la ficha**, todo regenerable por script:
+
+- `store/ficha.md` — título, descripción corta y larga, ya medidas contra los límites
+- `store/grafico-destacado.png` — el 1024x500 obligatorio · `python tools/mkgrafico.py`
+- `store/capturas/` — siete capturas en 1080x1920 · `node tools/mkcapturas.mjs`
+  (necesita `npm install --no-save puppeteer-core` y el dev server andando)
+- `store/icono-512.png` — el ícono de la ficha · `python tools/mkicons.py store`
+
+**Sin publicidad.** La app no lleva AdMob: así la política de privacidad sigue siendo
+cierta, el formulario de *Data safety* queda trivial y no hace falta el consentimiento
+UMP para Europa. La compra única desbloquea funciones, no quita avisos. Si alguna vez se
+agrega publicidad, hay que corregir la política y los textos de la ficha el mismo día.
+
 **Lo que falta del lado de Play**, y no depende del código: cuenta de desarrollador
 (US$25), prueba cerrada con 12 testers durante 14 días —obligatoria para cuentas
 personales nuevas—, formulario de *Data safety* (se declara que no se recolecta nada),
