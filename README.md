@@ -80,6 +80,37 @@ nativo antes de compilar:
 npx cap sync android
 ```
 
+## Publicar en Play Store
+
+**Política de privacidad** (obligatoria por el permiso de micrófono):
+<https://taloparis-alt.github.io/TuneApp/privacidad.html> — sale de `docs/privacidad.html`
+por GitHub Pages.
+
+**Firma.** La clave de subida vive en `firma/`, que está excluida de git y nunca se sube.
+De ahí salen cuatro secrets del repositorio, que el workflow usa para firmar:
+
+| Secret | Contenido |
+|---|---|
+| `KEYSTORE_BASE64` | `firma/keystore.base64.txt` completo |
+| `KEYSTORE_PASSWORD` | la contraseña del almacén |
+| `KEY_PASSWORD` | la misma contraseña |
+| `KEY_ALIAS` | `tuneapp` |
+
+Con los secrets cargados, cada compilación deja además del APK un artifact
+`tuneapp-aab`: ese `.aab` es el que se sube a Play Console. Sin los secrets, esos pasos
+se saltean y el workflow igual termina bien.
+
+Para regenerar la clave hace falta un JDK:
+
+```bash
+keytool -genkeypair -v -keystore firma/upload.keystore -storetype PKCS12   -alias tuneapp -keyalg RSA -keysize 2048 -validity 10000
+```
+
+**Lo que falta del lado de Play**, y no depende del código: cuenta de desarrollador
+(US$25), prueba cerrada con 12 testers durante 14 días —obligatoria para cuentas
+personales nuevas—, formulario de *Data safety* (se declara que no se recolecta nada),
+clasificación de contenido y capturas para la ficha.
+
 ## También funciona como PWA
 
 Sin compilar nada: subís la carpeta `www/` a cualquier hosting estático con HTTPS (Netlify
