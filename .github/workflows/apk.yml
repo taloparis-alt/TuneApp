@@ -28,10 +28,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Capacitor 8 exige node >= 22: con la 20, `cap sync` falla.
       - name: Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: npm
 
       - name: JDK 21

@@ -17,3 +17,6 @@ ref/
 # APK/AAB descargados de Actions
 TuneApp/
 *.zip
+
+# Clave de firma: NUNCA debe subirse al repositorio
+firma/
