@@ -77,7 +77,7 @@ function buildSettings(root) {
       <p class="pro-claim">La app es gratis y sin publicidad. Pro suma personalización
       y herramientas para quien las necesita.</p>
       <div class="pro-row">
-        <button class="btn-primary sm" id="sProBuy">Desbloquear todo</button>
+        <button class="btn-primary sm" id="sProBuy">Pasate a Pro</button>
         <button class="btn-ghost sm" id="sProMore" aria-expanded="false" aria-controls="sProDetail">Más info</button>
       </div>
       <div class="pro-detail is-hidden" id="sProDetail">
