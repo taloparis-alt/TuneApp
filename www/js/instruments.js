@@ -95,8 +95,9 @@ export const INSTRUMENTS = {
       { id: '1b', course: '1ª', midi: 76, side: 'R', row: 3, nut: 8, gauge: 1.2 },
       { id: '2a', course: '2ª', midi: 69, side: 'R', row: 2, nut: 7, gauge: 1.4 },
       { id: '2b', course: '2ª', midi: 69, side: 'R', row: 1, nut: 6, gauge: 1.4 },
-      { id: '3a', course: '3ª', midi: 76, side: 'R', row: 0, nut: 5, gauge: 1.2 },
-      { id: '3b', course: '3ª 8va', midi: 64, side: 'L', row: 0, nut: 4, gauge: 2.1, octave: true },
+      // En el 3er orden la octava grave (Mi4) va del lado derecho y el Mi5 del izquierdo.
+      { id: '3a', course: '3ª 8va', midi: 64, side: 'R', row: 0, nut: 5, gauge: 2.1, octave: true },
+      { id: '3b', course: '3ª', midi: 76, side: 'L', row: 0, nut: 4, gauge: 1.2 },
       { id: '4a', course: '4ª', midi: 72, side: 'L', row: 1, nut: 3, gauge: 1.5 },
       { id: '4b', course: '4ª', midi: 72, side: 'L', row: 2, nut: 2, gauge: 1.5 },
       { id: '5a', course: '5ª', midi: 67, side: 'L', row: 3, nut: 1, gauge: 1.8 },
