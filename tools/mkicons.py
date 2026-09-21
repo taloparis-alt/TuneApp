@@ -1,8 +1,9 @@
 """Genera los iconos de la app (PWA y Android) desde el mismo dibujo.
 
-    python tools/mkicons.py            # PWA + Android
+    python tools/mkicons.py            # PWA + Android + ficha de Play
     python tools/mkicons.py pwa        # sólo www/icons
     python tools/mkicons.py android    # sólo android/app/src/main/res
+    python tools/mkicons.py store      # sólo store/ (ficha de Play Store)
 
 El dibujo es el medidor de aguja: arco con la zona afinada en verde y la aguja al centro.
 """
@@ -16,6 +17,7 @@ import zlib
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PWA_DIR = os.path.join(ROOT, 'www', 'icons')
 RES_DIR = os.path.join(ROOT, 'android', 'app', 'src', 'main', 'res')
+STORE_DIR = os.path.join(ROOT, 'store')
 
 BG = (0x11, 0x16, 0x1f)
 RING = (0x24, 0x2e, 0x40)
@@ -142,9 +144,18 @@ def build_android():
         print('android  mipmap-' + folder)
 
 
+def build_store():
+    # Play pide el ícono de la ficha en 512x512 y lo recorta con esquinas
+    # redondeadas por su cuenta, así que va a sangre y con el dibujo más chico.
+    write_png(os.path.join(STORE_DIR, 'icono-512.png'), 512, render(512, 'none', BG, 0.72))
+    print('store    icono-512.png')
+
+
 if __name__ == '__main__':
     what = sys.argv[1] if len(sys.argv) > 1 else 'all'
     if what in ('all', 'pwa'):
         build_pwa()
     if what in ('all', 'android'):
         build_android()
+    if what in ('all', 'store'):
+        build_store()
