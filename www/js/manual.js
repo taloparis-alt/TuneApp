@@ -23,7 +23,7 @@ export class ManualScreen {
     root.innerHTML = `
       <div class="seg" id="mMode">
         <button class="seg-btn is-on" data-mode="auto">Cromático</button>
-        <button class="seg-btn" data-mode="fixed">Nota fija</button>
+        <button class="seg-btn" data-mode="fixed">Nota fija <span class="lock-tag" data-lock-tag="fixed">Pro</span></button>
       </div>
 
       <div class="readout">
@@ -73,7 +73,16 @@ export class ManualScreen {
     root.querySelector('#mMode').addEventListener('click', (e) => {
       const btn = e.target.closest('[data-mode]');
       if (!btn) return;
-      this.setMode(btn.dataset.mode === 'auto');
+      const quiereFija = btn.dataset.mode !== 'auto';
+      if (quiereFija && !settings.premium) {
+        document.dispatchEvent(new CustomEvent('pedir-compra'));
+        return;
+      }
+      this.setMode(!quiereFija);
+    });
+
+    settings.onChange((k) => {
+      if (k === 'premium') this.syncBloqueo();
     });
 
     this.grid.addEventListener('click', (e) => {
@@ -95,6 +104,14 @@ export class ManualScreen {
     });
 
     this.setMode(true);
+    this.syncBloqueo();
+  }
+
+  /** Marca "Nota fija" como bloqueado mientras no se haya comprado. */
+  syncBloqueo() {
+    const libre = settings.premium;
+    this.root.querySelectorAll('[data-lock-tag]').forEach((t) => t.classList.toggle('is-hidden', libre));
+    if (!libre && !this.chromatic) this.setMode(true);
   }
 
   get midi() {

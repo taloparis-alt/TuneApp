@@ -4,6 +4,7 @@ import { audio } from './audio.js';
 import { PitchDetector, Smoother } from './pitch.js';
 import { settings } from './store.js';
 import { noteNames } from './notes.js';
+import { billing } from './billing.js';
 import { TunerScreen } from './tuner.js';
 import { ManualScreen } from './manual.js';
 import { MetronomeScreen } from './metronome.js';
@@ -68,7 +69,30 @@ function setTab(name) {
 
 function buildSettings(root) {
   root.innerHTML = `
-    <h2 class="sec-title">Apariencia</h2>
+    <section class="pro-card" id="sPro">
+      <div class="pro-head">
+        <span class="pro-tag">TuneApp Pro</span>
+        <span class="pro-price" id="sProPrice">pago único</span>
+      </div>
+      <ul class="pro-list">
+        <li>Sin publicidad</li>
+        <li>Los cuatro temas</li>
+        <li>Frecuencia de referencia de 415 a 466 Hz</li>
+        <li>Margen de afinado configurable</li>
+        <li>Metrónomo completo: compás, acento y tap tempo</li>
+        <li>Afinación manual contra una nota fija</li>
+      </ul>
+      <button class="btn-primary big-btn" id="sProBuy">Quitar publicidad</button>
+      <button class="btn-link" id="sProRestore">Ya lo compré — restaurar</button>
+      <p class="pro-note is-hidden" id="sProNote"></p>
+    </section>
+
+    <section class="pro-ok is-hidden" id="sProOk">
+      <strong>TuneApp Pro activo</strong>
+      <span>Gracias. Todas las funciones están desbloqueadas.</span>
+    </section>
+
+    <h2 class="sec-title">Apariencia <span class="lock-tag" data-lock-tag="theme">Pro</span></h2>
     <div class="card">
       <div class="themes" id="sThemes">
         ${THEMES.map(
@@ -85,8 +109,8 @@ function buildSettings(root) {
       </div>
     </div>
 
-    <h2 class="sec-title">Frecuencia de referencia</h2>
-    <div class="card">
+    <h2 class="sec-title">Frecuencia de referencia <span class="lock-tag" data-lock-tag="a4">Pro</span></h2>
+    <div class="card" id="sA4Card">
       <div class="a4-box">
         <button class="round-btn big" id="sA4Down" aria-label="Bajar frecuencia">−</button>
         <div class="a4-value"><span id="sA4">440.0</span><small>Hz</small></div>
@@ -106,7 +130,7 @@ function buildSettings(root) {
       </div>
     </div>
 
-    <h2 class="sec-title">Precisión</h2>
+    <h2 class="sec-title">Precisión <span class="lock-tag" data-lock-tag="tolerance">Pro</span></h2>
     <div class="card">
       <div class="row-between">
         <span>Margen de afinado</span>
@@ -204,6 +228,78 @@ function buildSettings(root) {
     if (b) settings.set('accidentals', b.dataset.acc);
   });
 
+  /* ------------------------------ compra y bloqueos ------------------------------ */
+
+  const pro = root.querySelector('#sPro');
+  const proOk = root.querySelector('#sProOk');
+  const proNote = root.querySelector('#sProNote');
+  const proPrice = root.querySelector('#sProPrice');
+
+  // Llama la atención sobre la tarjeta Pro cuando se toca algo bloqueado.
+  function pedirCompra() {
+    pro.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    pro.classList.remove('destacar');
+    void pro.offsetWidth; // reinicia la animación
+    pro.classList.add('destacar');
+  }
+
+  // En fase de captura, para interceptar antes que los listeners de cada control.
+  root.addEventListener(
+    'click',
+    (e) => {
+      if (e.target.closest('[data-locked="true"]')) {
+        e.stopPropagation();
+        e.preventDefault();
+        pedirCompra();
+      }
+    },
+    true
+  );
+
+  function aviso(texto) {
+    proNote.textContent = texto;
+    proNote.classList.remove('is-hidden');
+  }
+
+  root.querySelector('#sProBuy').addEventListener('click', async () => {
+    if (!billing.disponible) {
+      aviso('La compra se habilita cuando la app se instala desde Play Store. En esta versión todavía no está disponible.');
+      return;
+    }
+    if (await billing.comprar()) settings.set('premium', true);
+    else aviso('No se pudo completar la compra. Probá de nuevo en un rato.');
+  });
+
+  root.querySelector('#sProRestore').addEventListener('click', async () => {
+    if (!billing.disponible) {
+      aviso('Restaurar la compra requiere tener la app instalada desde Play Store.');
+      return;
+    }
+    if (await billing.restaurar()) settings.set('premium', true);
+    else aviso('No encontramos una compra previa con esta cuenta de Google.');
+  });
+
+  const bloqueables = [
+    ['#sThemes', 'theme'],
+    ['#sA4Card', 'a4'],
+    ['#sTol', 'tolerance'],
+  ];
+
+  function syncPro() {
+    const comprado = settings.premium;
+    pro.classList.toggle('is-hidden', comprado);
+    proOk.classList.toggle('is-hidden', !comprado);
+    if (billing.precio) proPrice.textContent = billing.precio;
+
+    bloqueables.forEach(([sel, key]) => {
+      const el = root.querySelector(sel);
+      if (el) el.dataset.locked = String(settings.isLocked(key));
+    });
+    root.querySelectorAll('[data-lock-tag]').forEach((t) => {
+      t.classList.toggle('is-hidden', !settings.isLocked(t.dataset.lockTag));
+    });
+  }
+
   const chkSound = root.querySelector('#sSound');
   const chkVib = root.querySelector('#sVibrate');
   chkSound.addEventListener('change', () => settings.set('sound', chkSound.checked));
@@ -229,6 +325,7 @@ function buildSettings(root) {
     const nombres = noteNames(settings.get('notation'), settings.get('accidentals'));
     root.querySelector('#sCifradoEj').textContent =
       'Ejemplo: ' + [1, 3, 6, 8, 10].map((i) => nombres[i]).join(' · ');
+    syncPro();
   };
 
   settings.onChange(syncAll);
@@ -302,6 +399,7 @@ async function enableMic() {
 /* --------------------------------------------------------------------- init */
 
 function init() {
+  billing.init();
   applyTheme(settings.get('theme'));
   settings.onChange((k, v) => {
     if (k === 'theme') applyTheme(v);
@@ -318,6 +416,19 @@ function init() {
   });
 
   document.getElementById('micBtn').addEventListener('click', enableMic);
+
+  // Cualquier pantalla puede pedir la compra; acá se lleva al usuario a la tarjeta.
+  document.addEventListener('pedir-compra', () => {
+    setTab('settings');
+    const pro = document.getElementById('sPro');
+    if (!pro) return;
+    requestAnimationFrame(() => {
+      pro.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      pro.classList.remove('destacar');
+      void pro.offsetWidth;
+      pro.classList.add('destacar');
+    });
+  });
 
   const badge = document.getElementById('a4Badge');
   const syncBadge = () => {

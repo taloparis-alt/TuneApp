@@ -53,21 +53,21 @@ export class MetronomeScreen {
         </div>
 
         <div class="metro-row">
-          <label class="field">
-            <span class="field-label">Compás</span>
+          <label class="field" id="kBeatsField">
+            <span class="field-label">Compás <span class="lock-tag" data-lock-tag="beats">Pro</span></span>
             <select id="kBeats" class="select">
               ${[1, 2, 3, 4, 5, 6, 7, 8, 9, 12].map((n) => `<option value="${n}">${n}/4</option>`).join('')}
             </select>
           </label>
-          <label class="switch">
+          <label class="switch" id="kAccentField">
             <input type="checkbox" id="kAccent" checked>
-            <span>Acentuar el 1</span>
+            <span>Acentuar el 1 <span class="lock-tag" data-lock-tag="accent">Pro</span></span>
           </label>
         </div>
 
         <div class="metro-actions">
           <button class="btn-primary big-btn" id="kPlay">Iniciar</button>
-          <button class="btn-ghost" id="kTap">Tap tempo</button>
+          <button class="btn-ghost" id="kTap">Tap tempo <span class="lock-tag" data-lock-tag="tap">Pro</span></button>
         </div>
       </div>
     `;
@@ -91,11 +91,41 @@ export class MetronomeScreen {
     });
     this.chkAccent.addEventListener('change', () => settings.set('accent', this.chkAccent.checked));
     this.btnPlay.addEventListener('click', () => this.toggle());
-    root.querySelector('#kTap').addEventListener('click', () => this.tap());
+    root.querySelector('#kTap').addEventListener('click', () => {
+      if (!settings.premium) return document.dispatchEvent(new CustomEvent('pedir-compra'));
+      this.tap();
+    });
+
+    // En fase de captura, para frenar el control antes de que cambie de valor.
+    root.addEventListener(
+      'click',
+      (e) => {
+        if (!settings.premium && e.target.closest('#kBeatsField, #kAccentField')) {
+          e.stopPropagation();
+          e.preventDefault();
+          document.dispatchEvent(new CustomEvent('pedir-compra'));
+        }
+      },
+      true
+    );
+
+    settings.onChange((k) => {
+      if (k === 'premium' || k === 'beats' || k === 'accent') this.syncBloqueo();
+    });
 
     this.setBpm(settings.get('bpm'), true);
+    this.syncBloqueo();
+  }
+
+  /** Refleja los bloqueos y deja los controles en su valor vigente. */
+  syncBloqueo() {
+    const libre = settings.premium;
+    this.root.querySelectorAll('[data-lock-tag]').forEach((t) => t.classList.toggle('is-hidden', libre));
+    this.selBeats.disabled = !libre;
+    this.chkAccent.disabled = !libre;
     this.selBeats.value = String(settings.get('beats'));
     this.chkAccent.checked = settings.get('accent');
+    this.beat = 0;
     this.renderDots();
   }
 
@@ -165,7 +195,7 @@ export class MetronomeScreen {
     if (!ctx) return;
     const spb = 60 / this.bpm;
     while (this.nextTime < ctx.currentTime + SCHEDULE_AHEAD) {
-      const accent = this.chkAccent.checked && this.beat === 0;
+      const accent = settings.get('accent') && this.beat === 0;
       audio.beep({
         freq: accent ? 1560 : 990,
         duration: accent ? 0.055 : 0.04,
