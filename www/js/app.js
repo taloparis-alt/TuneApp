@@ -70,20 +70,25 @@ function setTab(name) {
 function buildSettings(root) {
   root.innerHTML = `
     <section class="pro-card" id="sPro">
-      <div class="pro-head">
+      <div class="pro-row">
         <span class="pro-tag">TuneApp Pro</span>
         <span class="pro-price" id="sProPrice">pago único</span>
       </div>
-      <ul class="pro-list">
-        <li>Sin publicidad</li>
-        <li>Los cuatro temas</li>
-        <li>Frecuencia de referencia de 415 a 466 Hz</li>
-        <li>Margen de afinado configurable</li>
-        <li>Metrónomo completo: compás, acento y tap tempo</li>
-        <li>Afinación manual contra una nota fija</li>
-      </ul>
-      <button class="btn-primary big-btn" id="sProBuy">Quitar publicidad</button>
-      <button class="btn-link" id="sProRestore">Ya lo compré — restaurar</button>
+      <div class="pro-row">
+        <button class="btn-primary sm" id="sProBuy">Quitar publicidad</button>
+        <button class="btn-ghost sm" id="sProMore" aria-expanded="false" aria-controls="sProDetail">Más info</button>
+      </div>
+      <div class="pro-detail is-hidden" id="sProDetail">
+        <ul class="pro-list">
+          <li>Sin publicidad</li>
+          <li>Los cuatro temas</li>
+          <li>Frecuencia de referencia de 415 a 466 Hz</li>
+          <li>Margen de afinado configurable</li>
+          <li>Metrónomo completo: compás, acento y tap tempo</li>
+          <li>Afinación manual contra una nota fija</li>
+        </ul>
+        <button class="btn-link" id="sProRestore">Ya lo compré — restaurar</button>
+      </div>
       <p class="pro-note is-hidden" id="sProNote"></p>
     </section>
 
@@ -260,6 +265,14 @@ function buildSettings(root) {
     proNote.textContent = texto;
     proNote.classList.remove('is-hidden');
   }
+
+  const proMore = root.querySelector('#sProMore');
+  const proDetail = root.querySelector('#sProDetail');
+  proMore.addEventListener('click', () => {
+    const abierto = proDetail.classList.toggle('is-hidden') === false;
+    proMore.setAttribute('aria-expanded', String(abierto));
+    proMore.textContent = abierto ? 'Menos' : 'Más info';
+  });
 
   root.querySelector('#sProBuy').addEventListener('click', async () => {
     if (!billing.disponible) {
