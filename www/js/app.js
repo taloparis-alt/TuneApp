@@ -275,23 +275,45 @@ function buildSettings(root) {
     proMore.textContent = abierto ? 'Menos' : 'Más info';
   });
 
-  root.querySelector('#sProBuy').addEventListener('click', async () => {
-    if (!billing.disponible) {
-      aviso('La compra se habilita cuando la app se instala desde Play Store. En esta versión todavía no está disponible.');
-      return;
-    }
-    if (await billing.comprar()) settings.set('premium', true);
-    else aviso('No se pudo completar la compra. Probá de nuevo en un rato.');
-  });
+  const btnBuy = root.querySelector('#sProBuy');
+  const btnRestore = root.querySelector('#sProRestore');
 
-  root.querySelector('#sProRestore').addEventListener('click', async () => {
-    if (!billing.disponible) {
-      aviso('Restaurar la compra requiere tener la app instalada desde Play Store.');
-      return;
+  // Play puede tardar en responder. Sin bloquear el botón, dos toques seguidos
+  // abren dos veces el flujo de compra.
+  async function conBoton(btn, texto, fn) {
+    if (btn.disabled) return;
+    const original = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = texto;
+    try {
+      await fn();
+    } finally {
+      btn.disabled = false;
+      btn.textContent = original;
     }
-    if (await billing.restaurar()) settings.set('premium', true);
-    else aviso('No encontramos una compra previa con esta cuenta de Google.');
-  });
+  }
+
+  btnBuy.addEventListener('click', () =>
+    conBoton(btnBuy, 'Abriendo…', async () => {
+      if (!billing.disponible) {
+        aviso('La compra se habilita cuando la app se instala desde Play Store.');
+        return;
+      }
+      if (await billing.comprar()) proNote.classList.add('is-hidden');
+      else aviso(billing.mensajeDeError());
+    })
+  );
+
+  btnRestore.addEventListener('click', () =>
+    conBoton(btnRestore, 'Buscando…', async () => {
+      if (!billing.disponible) {
+        aviso('Restaurar la compra requiere tener la app instalada desde Play Store.');
+        return;
+      }
+      if (await billing.restaurar()) proNote.classList.add('is-hidden');
+      else aviso('No encontramos una compra previa con esta cuenta de Google.');
+    })
+  );
 
   const bloqueables = [
     ['#sThemes', 'theme'],
@@ -343,6 +365,8 @@ function buildSettings(root) {
   };
 
   settings.onChange(syncAll);
+  // El precio lo trae Play después de que esta pantalla ya se armó.
+  billing.onChange(syncPro);
   syncAll();
 }
 
