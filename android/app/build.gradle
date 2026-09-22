@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "ar.afinador.app"
+    namespace = "com.bushiapps.tuneapp"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "ar.afinador.app"
+        applicationId "com.bushiapps.tuneapp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 2
