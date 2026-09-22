@@ -208,4 +208,4 @@ for (const escena of ESCENAS) {
 }
 
 await navegador.close();
-console.log('\nlistas en store/capturas/');
+console.log('\nlistas en store/' + DISPOSITIVO.carpeta + '/');
