@@ -2,7 +2,11 @@
 //
 //   npm install --no-save puppeteer-core
 //   python devserver.py 5200     (en otra terminal)
-//   node tools/mkcapturas.mjs
+//   node tools/mkcapturas.mjs                  telefono  (1080x1920)
+//   DISPOSITIVO=tablet7  node tools/mkcapturas.mjs       tablet 7"  (1200x1920)
+//   DISPOSITIVO=tablet10 node tools/mkcapturas.mjs       tablet 10" (1600x2560)
+//
+// Play pide capturas de tablet ademas de las de telefono para publicar la ficha.
 //
 // puppeteer-core se instala con --no-save a propósito: sólo hace falta para generar
 // estas imágenes, y agregarlo a package.json haría que CI lo baje en cada build.
@@ -21,7 +25,15 @@ import { fileURLToPath } from 'node:url';
 import puppeteer from 'puppeteer-core';
 
 const RAIZ = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-const SALIDA = path.join(RAIZ, 'store', 'capturas');
+// Cada preset da el tamaño final multiplicando por deviceScaleFactor.
+const DISPOSITIVOS = {
+  telefono: { carpeta: 'capturas', width: 360, height: 640, escala: 3 },
+  tablet7: { carpeta: 'capturas-tablet7', width: 600, height: 960, escala: 2 },
+  tablet10: { carpeta: 'capturas-tablet10', width: 800, height: 1280, escala: 2 },
+};
+const DISPOSITIVO = DISPOSITIVOS[process.env.DISPOSITIVO || 'telefono'];
+if (!DISPOSITIVO) throw new Error('DISPOSITIVO debe ser: ' + Object.keys(DISPOSITIVOS).join(', '));
+const SALIDA = path.join(RAIZ, 'store', DISPOSITIVO.carpeta);
 const BASE = process.env.BASE || 'http://localhost:5200';
 const CHROME = 'C:/Program Files/Google/Chrome/Application/chrome.exe';
 
@@ -161,8 +173,12 @@ const navegador = await puppeteer.launch({
 });
 
 const pagina = await navegador.newPage();
-// deviceScaleFactor 3 sobre 360x640 da exactamente 1080x1920.
-await pagina.setViewport({ width: 360, height: 640, deviceScaleFactor: 3, isMobile: true });
+await pagina.setViewport({
+  width: DISPOSITIVO.width,
+  height: DISPOSITIVO.height,
+  deviceScaleFactor: DISPOSITIVO.escala,
+  isMobile: true,
+});
 
 fs.mkdirSync(SALIDA, { recursive: true });
 await pagina.goto(BASE + '/index.html', { waitUntil: 'networkidle0' });
