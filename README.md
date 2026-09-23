@@ -36,6 +36,21 @@ El proyecto nativo ya está armado en `android/`, con el permiso de micrófono, 
 vertical, pantalla que no se apaga y los iconos generados. Falta compilarlo, y para eso
 hacen falta JDK 17 y el SDK de Android. Hay dos caminos.
 
+### Bajar la última versión para probar
+
+Siempre está acá, sin fecha de vencimiento en el enlace:
+
+**<https://github.com/taloparis-alt/TuneApp/actions/workflows/apk.yml>**
+
+Entrás a la corrida de más arriba que tenga el tilde verde, bajás hasta **Artifacts** y
+descargás **`tuneapp-apk`**. Viene en un .zip; adentro está el `.apk` que se instala en el
+celular (hay que permitir *Instalar apps de origen desconocido*). El otro artifact,
+`tuneapp-aab`, es el firmado para Play Store y **no** se puede instalar a mano.
+
+Hay que estar con la sesión de GitHub iniciada para que aparezca el botón de descarga.
+Los artifacts se borran solos a los 90 días; si el enlace no trae nada, se regenera
+apretando *Run workflow* en esa misma página.
+
 ### En la nube, con GitHub Actions (no requiere instalar nada)
 
 Ya está el workflow en `.github/workflows/apk.yml`. Subís el proyecto a un repositorio de
