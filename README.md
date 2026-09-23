@@ -38,18 +38,22 @@ hacen falta JDK 17 y el SDK de Android. Hay dos caminos.
 
 ### Bajar la última versión para probar
 
-Siempre está acá, sin fecha de vencimiento en el enlace:
+**<https://github.com/taloparis-alt/TuneApp/releases/download/ultima/tuneapp.apk>**
 
-**<https://github.com/taloparis-alt/TuneApp/actions/workflows/apk.yml>**
+Ese enlace baja el `.apk` directo y **no cambia nunca**: cada compilación de `main`
+reescribe la etiqueta `ultima`. Conviene abrirlo **desde el celular** y listo; Android
+va a pedir permiso para *instalar apps de origen desconocido*, que es lo normal para
+algo que todavía no viene de Play Store.
 
-Entrás a la corrida de más arriba que tenga el tilde verde, bajás hasta **Artifacts** y
-descargás **`tuneapp-apk`**. Viene en un .zip; adentro está el `.apk` que se instala en el
-celular (hay que permitir *Instalar apps de origen desconocido*). El otro artifact,
-`tuneapp-aab`, es el firmado para Play Store y **no** se puede instalar a mano.
+Si preferís ver de qué compilación es antes de bajarlo:
+<https://github.com/taloparis-alt/TuneApp/releases/latest>
 
-Hay que estar con la sesión de GitHub iniciada para que aparezca el botón de descarga.
-Los artifacts se borran solos a los 90 días; si el enlace no trae nada, se regenera
-apretando *Run workflow* en esa misma página.
+> Antes esto se hacía con los artifacts de Actions, y daba tres problemas: hay que
+> estar con sesión iniciada en GitHub, vencen a los 90 días, y vienen en `.zip`, que
+> el antivirus de Chrome bloquea sin avisar del todo. El release evita los tres.
+
+El `.aab` firmado para Play Store sigue estando sólo como artifact de Actions: no se
+instala a mano y no tiene sentido repartirlo.
 
 ### En la nube, con GitHub Actions (no requiere instalar nada)
 

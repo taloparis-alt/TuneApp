@@ -17,6 +17,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -105,3 +108,34 @@ jobs:
           name: tuneapp-aab
           path: android/app/build/outputs/bundle/release/app-release.aab
           if-no-files-found: error
+
+      # Los artifacts sirven para guardar cosas, no para repartirlas: hay que estar
+      # con sesion iniciada en GitHub, vencen a los 90 dias, y vienen en .zip, que es
+      # justo lo que el antivirus de Chrome bloquea. El release resuelve las tres:
+      # link publico, fijo, y el .apk suelto para abrir desde el celular.
+      #
+      # La etiqueta `ultima` se reescribe en cada compilacion, asi el link no cambia.
+      - name: Publicar el APK como release descargable
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ github.sha }}
+          CORRIDA: ${{ github.run_number }}
+        run: |
+          cp android/app/build/outputs/apk/debug/app-debug.apk tuneapp.apk
+
+          cat > notas.md <<NOTAS
+          APK de prueba de TuneApp, recien compilado desde \`main\`.
+
+          - Commit: \`$SHA\`
+          - Compilacion: #$CORRIDA
+
+          Abri este link desde el celular y descarga **tuneapp.apk**. Android va a pedir
+          permiso para *instalar apps de origen desconocido*: es porque todavia no viene
+          de Play Store, no porque el archivo tenga algo raro.
+
+          Este es el APK de prueba, firmado con la clave de depuracion. El de Play Store
+          es el .aab firmado, que va por otro camino y no se instala a mano.
+          NOTAS
+
+          gh release delete ultima --yes --cleanup-tag 2>/dev/null || true
+          gh release create ultima tuneapp.apk --title "Ultima version para probar" --notes-file notas.md
