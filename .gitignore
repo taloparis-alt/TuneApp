@@ -20,3 +20,4 @@ TuneApp/
 
 # Clave de firma: NUNCA debe subirse al repositorio
 firma/
+pruebas/.tmp/
