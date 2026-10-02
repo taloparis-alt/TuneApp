@@ -123,6 +123,16 @@ jobs:
         run: |
           cp android/app/build/outputs/apk/debug/app-debug.apk tuneapp.apk
 
+          # El .aab tambien va al release: como artifact hay que estar con sesion
+          # iniciada y viene en .zip, que es lo que el antivirus bloquea. Suelto se
+          # baja con un curl. No es secreto: el repo es publico y Play lo vuelve a
+          # firmar con su propia clave al distribuirlo.
+          ARCHIVOS=tuneapp.apk
+          if [ -f android/app/build/outputs/bundle/release/app-release.aab ]; then
+            cp android/app/build/outputs/bundle/release/app-release.aab tuneapp.aab
+            ARCHIVOS="$ARCHIVOS tuneapp.aab"
+          fi
+
           cat > notas.md <<NOTAS
           APK de prueba de TuneApp, recien compilado desde \`main\`.
 
@@ -133,9 +143,10 @@ jobs:
           permiso para *instalar apps de origen desconocido*: es porque todavia no viene
           de Play Store, no porque el archivo tenga algo raro.
 
-          Este es el APK de prueba, firmado con la clave de depuracion. El de Play Store
-          es el .aab firmado, que va por otro camino y no se instala a mano.
+          Este es el APK de prueba, firmado con la clave de depuracion. El **tuneapp.aab**
+          que esta al lado es el firmado para Play Store: ese no se instala a mano, se
+          sube a Play Console.
           NOTAS
 
           gh release delete ultima --yes --cleanup-tag 2>/dev/null || true
-          gh release create ultima tuneapp.apk --title "Ultima version para probar" --notes-file notas.md
+          gh release create ultima $ARCHIVOS --title "Ultima version para probar" --notes-file notas.md
