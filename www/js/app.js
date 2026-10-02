@@ -322,6 +322,19 @@ function buildSettings(root) {
   ];
 
   function syncPro() {
+    // Mientras la app sea enteramente gratis no se ofrece nada: ni la tarjeta de
+    // compra ni el cartel de "Pro activo", que no significarían nada.
+    if (!settings.proDisponible) {
+      pro.classList.add('is-hidden');
+      proOk.classList.add('is-hidden');
+      root.querySelectorAll('[data-lock-tag]').forEach((t) => t.classList.add('is-hidden'));
+      bloqueables.forEach(([sel]) => {
+        const el = root.querySelector(sel);
+        if (el) el.dataset.locked = 'false';
+      });
+      return;
+    }
+
     const comprado = settings.premium;
     pro.classList.toggle('is-hidden', comprado);
     proOk.classList.toggle('is-hidden', !comprado);
@@ -437,7 +450,9 @@ async function enableMic() {
 /* --------------------------------------------------------------------- init */
 
 function init() {
-  billing.init();
+  // Sin cobro activo el plugin no tiene nada que hacer, y arrancarlo sólo sumaría
+  // una espera al abrir la app.
+  if (settings.proDisponible) billing.init();
   applyTheme(settings.get('theme'));
   settings.onChange((k, v) => {
     if (k === 'theme') applyTheme(v);

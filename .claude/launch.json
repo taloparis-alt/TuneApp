@@ -6,9 +6,9 @@
       "runtimeExecutable": "python",
       "runtimeArgs": [
         "devserver.py",
-        "5210"
+        "5230"
       ],
-      "port": 5210
+      "port": 5230
     }
   ]
 }

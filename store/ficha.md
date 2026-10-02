@@ -40,28 +40,18 @@ Tocás una cuerda al aire y TuneApp reconoce sola cuál es: no hay que elegirla 
 TAMBIÉN TRAE
 
 • Afinación manual cromática: te dice qué nota estás tocando, sea del instrumento que sea
-• Metrónomo de 30 a 300 BPM
+• Metrónomo de 30 a 300 BPM, con compás, acento y tap tempo
+• Frecuencia de referencia ajustable de 415 a 466 Hz, para tocar junto a otros instrumentos o en afinaciones alternativas
+• Margen de afinado configurable, para exigirle más o menos al oído
 • Cuatro temas visuales, incluido uno claro para tocar con luz de día
 • Nombres de notas en Do Re Mi o en C D E, con sostenidos o bemoles
 
 SIN VUELTAS
 
-• Sin publicidad
+• Gratis y sin publicidad
 • No recolecta ningún dato: el audio se analiza dentro de tu teléfono, no se graba ni se envía a ningún lado
 • Funciona sin conexión a internet
 • No pide cuenta ni registro
-
-TUNEAPP PRO
-
-La app es gratis y completa para afinar. Con un pago único, una sola vez, se suman:
-
-• Los cuatro temas visuales
-• Frecuencia de referencia ajustable de 415 a 466 Hz, para tocar junto a otros instrumentos o en afinaciones alternativas
-• Margen de afinado configurable
-• Metrónomo completo: compás, acento y tap tempo
-• Afinación contra una nota fija elegida
-
-Afinar los tres instrumentos es gratis, y siempre va a serlo.
 ```
 
 ---
@@ -86,6 +76,15 @@ afinadores gratis están llenos de avisos. Conviene decirlo, pero sólo mientras
 siendo cierto: si algún día se agrega AdMob, hay que corregir este texto y la política
 de privacidad el mismo día.
 
-**Se aclara que afinar es gratis para siempre.** Evita la sospecha de que el pago sea
-para poder usar lo básico, que es el principal motivo de malas valoraciones en apps con
-funciones bloqueadas.
+**La primera versión sale gratis y completa.** El cobro quedó para una actualización
+posterior: activarlo exige una cuenta de cobro en Play Console que todavía no está, y no
+tenía sentido retener una app terminada por eso. El código del cobro está escrito y
+probado, detrás de la bandera `PRO_ACTIVO` en `www/js/store.js`.
+
+**Cuando se active Pro hay que volver a tocar este archivo y la ficha de Play**, porque
+estos textos van a dejar de ser ciertos: hoy prometen todas las funciones sin pagar. Lo
+mismo que con la publicidad, el día que cambie el producto cambia la ficha.
+
+**Quien instaló la versión gratis conserva las funciones para siempre.** La fecha de
+instalación se guarda desde ahora para poder distinguirlos; sólo paga el que llegue
+después de que Pro empiece a regir.
