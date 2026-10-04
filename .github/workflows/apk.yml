@@ -72,7 +72,11 @@ jobs:
         if: env.KEYSTORE_BASE64 != ''
         run: echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/upload.keystore"
 
-      - name: Compilar AAB firmado para Play Store
+      # Ademas del .aab se compila el APK de release. El .aab no se puede instalar
+      # a mano, asi que sin esto la unica forma de probar la compilacion de release
+      # es publicarla en Play: eso ya hizo que saliera una version que crasheaba.
+      # Con este APK se prueba el mismo build que va a la tienda, antes de subirlo.
+      - name: Compilar release firmado para Play Store
         if: env.KEYSTORE_BASE64 != ''
         working-directory: android
         env:
@@ -80,7 +84,7 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: ./gradlew bundleRelease --no-daemon --stacktrace
+        run: ./gradlew bundleRelease assembleRelease --no-daemon --stacktrace
 
       # Si algo falla, los informes de Gradle quedan a mano para ver el error
       # sin tener que leer todo el log.
@@ -132,6 +136,10 @@ jobs:
             cp android/app/build/outputs/bundle/release/app-release.aab tuneapp.aab
             ARCHIVOS="$ARCHIVOS tuneapp.aab"
           fi
+          if [ -f android/app/build/outputs/apk/release/app-release.apk ]; then
+            cp android/app/build/outputs/apk/release/app-release.apk tuneapp-release.apk
+            ARCHIVOS="$ARCHIVOS tuneapp-release.apk"
+          fi
 
           cat > notas.md <<NOTAS
           APK de prueba de TuneApp, recien compilado desde \`main\`.
@@ -143,9 +151,13 @@ jobs:
           permiso para *instalar apps de origen desconocido*: es porque todavia no viene
           de Play Store, no porque el archivo tenga algo raro.
 
-          Este es el APK de prueba, firmado con la clave de depuracion. El **tuneapp.aab**
-          que esta al lado es el firmado para Play Store: ese no se instala a mano, se
-          sube a Play Console.
+          Hay tres archivos:
+
+          - **tuneapp-release.apk**: la compilacion de release, la misma que va a Play.
+            Es la que conviene probar antes de publicar.
+          - **tuneapp.apk**: la compilacion de prueba (debug).
+          - **tuneapp.aab**: el bundle firmado que se sube a Play Console. No se
+            instala a mano.
           NOTAS
 
           gh release delete ultima --yes --cleanup-tag 2>/dev/null || true
