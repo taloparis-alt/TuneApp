@@ -3,10 +3,15 @@
 // Toda la app habla con este módulo y no con la tienda, así que ninguna pantalla
 // sabe qué plugin hay detrás ni en qué estado está la conexión con Play.
 //
-// El plugin (cordova-plugin-purchase) sólo existe dentro del APK: Capacitor lo
-// inyecta en el WebView junto con cordova.js. En el navegador y en el APK de
-// prueba instalado a mano no hay tienda, así que `disponible` queda en false y
-// la pantalla de ajustes lo explica en vez de abrir un flujo que iba a fallar.
+// IMPORTANTE: mientras la app sea gratis, **el plugin nativo no está instalado**.
+// Se sacó el 04/10/2026 porque la versión publicada crasheaba al abrir y era el
+// único cambio nativo desde la última versión que funcionaba; además metía el
+// permiso de cobro, que hacía aparecer "Compras desde la app" en la ficha de una
+// app que no vende nada. Este módulo queda igual y degrada solo: sin
+// `window.CdvPurchase` nunca se declara disponible.
+//
+// Para reactivar Pro: `npm install cordova-plugin-purchase@13` y `npx cap sync
+// android`, además de encender PRO_ACTIVO en store.js.
 
 import { settings } from './store.js';
 
