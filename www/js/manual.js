@@ -74,7 +74,7 @@ export class ManualScreen {
       const btn = e.target.closest('[data-mode]');
       if (!btn) return;
       const quiereFija = btn.dataset.mode !== 'auto';
-      if (quiereFija && !settings.premium) {
+      if (quiereFija && settings.bloqueosActivos) {
         document.dispatchEvent(new CustomEvent('pedir-compra'));
         return;
       }
@@ -107,9 +107,9 @@ export class ManualScreen {
     this.syncBloqueo();
   }
 
-  /** Marca "Nota fija" como bloqueado mientras no se haya comprado. */
+  /** Marca "Nota fija" como bloqueado sólo si de verdad hay bloqueos vigentes. */
   syncBloqueo() {
-    const libre = settings.premium;
+    const libre = !settings.bloqueosActivos;
     this.root.querySelectorAll('[data-lock-tag]').forEach((t) => t.classList.toggle('is-hidden', libre));
     if (!libre && !this.chromatic) this.setMode(true);
   }

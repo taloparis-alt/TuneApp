@@ -92,7 +92,7 @@ export class MetronomeScreen {
     this.chkAccent.addEventListener('change', () => settings.set('accent', this.chkAccent.checked));
     this.btnPlay.addEventListener('click', () => this.toggle());
     root.querySelector('#kTap').addEventListener('click', () => {
-      if (!settings.premium) return document.dispatchEvent(new CustomEvent('pedir-compra'));
+      if (settings.bloqueosActivos) return document.dispatchEvent(new CustomEvent('pedir-compra'));
       this.tap();
     });
 
@@ -100,7 +100,7 @@ export class MetronomeScreen {
     root.addEventListener(
       'click',
       (e) => {
-        if (!settings.premium && e.target.closest('#kBeatsField, #kAccentField')) {
+        if (settings.bloqueosActivos && e.target.closest('#kBeatsField, #kAccentField')) {
           e.stopPropagation();
           e.preventDefault();
           document.dispatchEvent(new CustomEvent('pedir-compra'));
@@ -119,7 +119,7 @@ export class MetronomeScreen {
 
   /** Refleja los bloqueos y deja los controles en su valor vigente. */
   syncBloqueo() {
-    const libre = settings.premium;
+    const libre = !settings.bloqueosActivos;
     this.root.querySelectorAll('[data-lock-tag]').forEach((t) => t.classList.toggle('is-hidden', libre));
     this.selBeats.disabled = !libre;
     this.chkAccent.disabled = !libre;

@@ -7,7 +7,7 @@
     "dev": "python devserver.py",
     "sync": "cap sync android",
     "apk": "cd android && gradlew.bat assembleDebug",
-    "test": "node pruebas/veteranos.mjs && node pruebas/billing.mjs"
+    "test": "node pruebas/bloqueos.mjs && node pruebas/veteranos.mjs && node pruebas/billing.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.2",

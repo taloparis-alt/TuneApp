@@ -107,6 +107,18 @@ export const settings = {
     return PRO_ACTIVO;
   },
 
+  /**
+   * true si en este momento hay algo bloqueado para este usuario.
+   *
+   * Es la única fuente de verdad: las pantallas tienen que preguntar esto y no
+   * `premium`, que es sólo uno de los motivos por los que algo puede estar libre.
+   * Mirar `premium` directamente fue el error que dejó el metrónomo y la nota
+   * fija bloqueados en una versión que salió gratis.
+   */
+  get bloqueosActivos() {
+    return hayBloqueo();
+  },
+
   /** true si conserva las funciones por haber instalado antes de que Pro existiera. */
   get veterano() {
     return esVeterano();
