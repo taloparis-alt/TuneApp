@@ -14,8 +14,12 @@ android/app/src/main/assets/capacitor.plugins.json
 # Material de referencia, no forma parte de la app
 ref/
 
-# APK/AAB descargados de Actions
-TuneApp/
+# APK/AAB descargados de Actions. La barra del principio ancla la regla al raiz
+# del repositorio: sin ella, `TuneApp/` se comia tambien el paquete del codigo
+# fuente (android/app/src/main/java/com/bushiapps/tuneapp/), porque Git en
+# Windows ignora mayusculas. Eso dejo MainActivity.java fuera del repositorio y
+# la app compilada en CI salia sin su clase principal: crasheaba al abrir.
+/TuneApp/
 *.zip
 
 # Clave de firma: NUNCA debe subirse al repositorio
